@@ -190,6 +190,6 @@ unlistMformat <- function(x, ...) {
 #' @param x mfactor element
 #' @export
 format.mfactor <- function(x) {
-  structure(as.character.mformat(x), names = names(x), dim = dim(x),
+  structure(as.character.mfactor(x), names = names(x), dim = dim(x),
     dimnames = dimnames(x))
 }
