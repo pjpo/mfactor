@@ -138,7 +138,7 @@ as.data.frame.mfactor <- function(x, ...) {
 #'
 #' @param x mfactor
 #' @export
-as.character.mformat <- function(x) {
+as.character.mfactor <- function(x) {
   # value is null, return null
   if (is.null(x)) x
   # representation is unknown, show underlying representation
