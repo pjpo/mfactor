@@ -2,10 +2,19 @@
 # factor with multiple descriptions
 ###############################################################################
 
+#' "mfactor" class
+#'
+#' @name mfactor-class
+#' @aliases mfactor
+#' @family mfactor
+#'
+#' @exportClass mfactor
 setOldClass("mfactor")
 
-#' Definition of the as function from any type
+#' As("ANY", "mfactor")
 #'
+#' @name as
+#' @family ANY
 setAs("ANY", "mfactor", function(from) as.mfactor(from))
 
 #' Keeps class and attributes when accessing subsets of the value
@@ -49,7 +58,7 @@ as.mfactor <- function(x, ...) UseMethod("as.mfactor")
 #' @export
 mfactor <- function(x = character(), levels, labels,
   exclude = NA, ordered = is.ordered(x), nmax = NA,
-  representation = "default") {
+  representation = NULL) {
   if (is.null(x))
       x <- character()
   # Keeps the names
@@ -86,7 +95,15 @@ mfactor <- function(x = character(), levels, labels,
   mlevels(f) <- labels
 
   class(f) <- c(if (ordered) "ordered", "mfactor")
-  attr(f, "representation") <- representation
+
+  # If representation is set to null or the representation is not in
+  # the labels, the representation will be the first label
+  attr(f, "representation") <- {
+    if (is.null(representation) | sum(colnames(labels) == representation) == 0)
+      colnames(labels)[1]
+    else
+      representation
+  }
   f
 }
 
@@ -98,6 +115,20 @@ mfactor <- function(x = character(), levels, labels,
 `mlevels<-` <- function(x, value) {
   for (i in 1:ncol(value)) {
     attr(x, paste0("label-", colnames(value)[[i]])) <- vapply(value[, i], format, "")
+  }
+  x
+}
+
+#' Overload of the <- operator in order to define mfactor representation
+#'
+#' @param x mfactor
+#' @param value representation name
+#' @export
+`representation<-` <- function(x, value) {
+  if (is.null(attributes(x)[paste0("label-", value)])) {
+    warning(paste0("Representation ", value, " is not defined as label"))
+  } else {
+    attr(x, "representation") <- value
   }
   x
 }
@@ -138,7 +169,7 @@ as.data.frame.mfactor <- function(x, ...) {
 #'
 #' @param x mfactor
 #' @export
-as.character.mfactor <- function(x) {
+as.character.mfactor <- function(x, ...) {
   # value is null, return null
   if (is.null(x)) x
   # representation is unknown, show underlying representation
@@ -155,12 +186,12 @@ as.character.mfactor <- function(x) {
   }
 }
 
-#' Overloads the unique capacity for mformat
+#' Overloads the unique capacity for mfactor
 #'
-#' @param x mformat
+#' @param x mfactor
 #' @inheritDotParams unique.default
 #' @export
-unique.mformat <- function(x, ...) {
+unique.mfactor <- function(x, ...) {
   funArgs <- list(...)
 	funArgs <- funArgs[!(names(funArgs) == "x")]
   r <- do.call(unique.default, c(list("x" = x), funArgs))
@@ -173,7 +204,7 @@ unique.mformat <- function(x, ...) {
 #' @param x mfactor
 #' @inheritDotParams unlist
 #' @export
-unlistMformat <- function(x, ...) {
+unlistMfactor <- function(x, ...) {
   if (!is.list(x)) {
     warning("Not a list")
     x
@@ -189,7 +220,7 @@ unlistMformat <- function(x, ...) {
 #'
 #' @param x mfactor element
 #' @export
-format.mfactor <- function(x) {
+format.mfactor <- function(x, ...) {
   structure(as.character.mfactor(x), names = names(x), dim = dim(x),
     dimnames = dimnames(x))
 }
