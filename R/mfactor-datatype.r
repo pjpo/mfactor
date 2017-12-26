@@ -125,7 +125,7 @@ mfactor <- function(x = character(), levels, labels,
 #' @param value representation name
 #' @export
 `representation<-` <- function(x, value) {
-  if (is.null(attributes(x)[paste0("label-", value)])) {
+  if (is.null(attributes(x)[[paste0("label-", value)]])) {
     warning(paste0("Representation ", value, " is not defined as label"))
   } else {
     attr(x, "representation") <- value
