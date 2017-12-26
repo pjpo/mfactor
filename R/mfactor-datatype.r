@@ -23,9 +23,8 @@ setAs("ANY", "mfactor", function(from) as.mfactor(from))
 #' @inheritDotParams `[`
 #' @export
 `[.mfactor` <- function(x, ...) {
-  r <- x
-  class(r) <- "vector"
-  r <- NextMethod("[", r, ...)
+  r <- as.integer(x)
+  r <- `[`(r, ...)
   mostattributes(r) <- attributes(x)
   r
 }
@@ -36,7 +35,8 @@ setAs("ANY", "mfactor", function(from) as.mfactor(from))
 #' @inheritDotParams `[[`
 #' @export
 `[[.mfactor` <- function(x, ...) {
-  r <- NextMethod("[", x, ...)
+  r <- as.integer(x)
+  r <- `[[`(r, ...)
   mostattributes(r) <- attributes(x)
   r
 }
@@ -96,7 +96,7 @@ mfactor <- function(x = character(), levels, labels,
 
   mlevels(f) <- labels
 
-  class(f) <- c(if (ordered) "ordered", "mfactor")
+  class(f) <- c(if (ordered) "ordered", "mfactor", "numeric")
 
   # If representation is set to null or the representation is not in
   # the labels, the representation will be the first label
@@ -185,6 +185,20 @@ as.character.mfactor <- function(x, ...) {
     class(r) <- "factor"
     levels(r) <- attr(x, paste0("label-", attr(x, "representation")))
     as.character(r)
+  }
+}
+
+#' Transforms an mfactor to the internal integer representation
+#'
+#' @param x mfactor
+#' @export
+as.integer.mfactor <- function(x, ...) {
+  # value is null, return null
+  if (is.null(x)) x
+  else {
+    r <- as.vector(x)
+    class(r) <- "integer"
+    r
   }
 }
 
