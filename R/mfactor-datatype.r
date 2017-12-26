@@ -23,7 +23,9 @@ setAs("ANY", "mfactor", function(from) as.mfactor(from))
 #' @inheritDotParams `[`
 #' @export
 `[.mfactor` <- function(x, ...) {
-  r <- NextMethod("[", x, ...)
+  r <- x
+  class(r) <- "vector"
+  r <- NextMethod("[", r, ...)
   mostattributes(r) <- attributes(x)
   r
 }
